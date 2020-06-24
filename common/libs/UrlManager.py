@@ -7,11 +7,11 @@ class UrlManager(object):
         pass
 
     @staticmethod
-    def builUrl(path):
+    def buildUrl(path):
         return path
 
     @staticmethod
-    def builStaticUrl(path):
+    def buildStaticUrl(path):
         ver = '%s' % ("202006171300")
         path = '/static' + path + "?ver=" + ver
-        return UrlManager.builUrl(path)
+        return UrlManager.buildUrl(path)

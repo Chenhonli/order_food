@@ -9,6 +9,8 @@ verify_ssl = true
 flask = "==1.1.0"
 flask-sqlalchemy = "==2.4.1"
 flask-script = "==2.0.6"
+flask-sqlacodegen = "==1.1.6.1"
+mysqlclient = "==1.4.6"
 
 [requires]
 python_version = "3.7"
