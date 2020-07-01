@@ -14,7 +14,7 @@
 		</div>
 		<div class="col-md-6">
 			<div class="ibox-content">
-				<div class="m-t login_wrap" role="form">
+				<div class="m-t login_wrap">
                     <div class="form-group text-center">
                         <h2 class="font-bold">登录</h2>
                     </div>
@@ -39,4 +39,8 @@
 		</div>
 	</div>
 </div>
+{% endblock %}
+
+{% block js %}
+<script src="{{ buildStaticUrl('/js/user/login.js') }}"></script>
 {% endblock %}
