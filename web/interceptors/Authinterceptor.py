@@ -14,18 +14,22 @@ def before_request():
     ignore_check_login_urls = app.config['IGNORE_CHECK_LOGIN_URLS']
     path = request.path
 
+    # 检查是否是需要登录的url
     pattern = re.compile("%s" % "|".join(ignore_check_login_urls))
     if pattern.match(path):
         return
 
-    user_info = check_login()
-    g.current_user = None
-    if user_info:
-        g.current_user = user_info
-
+    # 检查是否是登录页面的url
     pattern = re.compile("%s" % "|".join(ignore_urls))
     if pattern.match(path):
         return
+
+    # 判断用户是否已登录
+    user_info = check_login()
+
+    g.current_user = None
+    if user_info:
+        g.current_user = user_info
 
     if not user_info:
         return redirect(UrlManager.buildUrl("/user/login"))

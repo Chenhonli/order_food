@@ -1,10 +1,11 @@
 # -*- encoding: utf-8 -*-
-from flask import Blueprint, render_template, request, jsonify, make_response, redirect
+from flask import Blueprint, request, jsonify, make_response, redirect
 from common.models.User import User
 from common.libs.user.UserService import UserService
 import json
 from application import app
 from common.libs.UrlManager import UrlManager
+from common.libs.Helper import ops_render
 
 route_user = Blueprint('user_page', __name__)
 
@@ -12,7 +13,7 @@ route_user = Blueprint('user_page', __name__)
 @route_user.route("/login", methods=['GET', 'POST'])
 def login():
     if request.method == 'GET':
-        return render_template("user/login.html")
+        return ops_render("user/login.html")
 
     resp = {"code": 200, "msg": "success", 'data': {}}
     req = request.values
@@ -48,12 +49,12 @@ def login():
 
 @route_user.route("/edit")
 def edit():
-    return render_template("user/edit.html")
+    return ops_render("user/edit.html")
 
 
 @route_user.route("/reset-pwd")
 def resetPwd():
-    return render_template('user/reset_pwd.html')
+    return ops_render('user/reset_pwd.html')
 
 
 @route_user.route("/logout")
