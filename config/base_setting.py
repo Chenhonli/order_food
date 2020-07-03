@@ -13,3 +13,8 @@ IGNORE_CHECK_LOGIN_URLS = [
     "^/static",
     "^/favicon.ico"
 ]
+
+# 分页展示配置
+PAGE_SIZE = 50
+# 显示页数
+PAGE_DISPLAY = 10
