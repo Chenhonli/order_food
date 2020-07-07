@@ -15,6 +15,11 @@ IGNORE_CHECK_LOGIN_URLS = [
 ]
 
 # 分页展示配置
-PAGE_SIZE = 50
-# 显示页数
+PAGE_SIZE = 10
+# 显示页数(暂时没有使用到)
 PAGE_DISPLAY = 10
+
+STATUS_MAPPING = {
+    "1": "正常",
+    "0": "已删除"
+}

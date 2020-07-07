@@ -4,7 +4,10 @@ from common.libs.Helper import ops_render, iPagination, getCurrentDate
 from common.libs.UrlManager import UrlManager
 from common.libs.user.UserService import UserService
 from common.models.User import User
+from common.models.log.AppAccessLog import AppAccessLog
 from application import app, db
+
+from sqlalchemy import or_
 
 route_account = Blueprint('account_page', __name__)
 
@@ -13,17 +16,22 @@ route_account = Blueprint('account_page', __name__)
 def index():
     resp_data = {}
     query = User.query
-
     req = request.values
+    page = int(req['p']) if ('p' in req and req['p']) else 1
 
-    page = int(req['page']) if ('page' in req and req['page']) else 1
+    if 'mix_kw' in req:
+        rule = or_(User.nickname.ilike("%{0}%".format(req['mix_kw'])), User.mobile.ilike("%{0}%".format(req['mix_kw'])))
+        query = query.filter(rule)
+
+    if 'status' in req and int(req['status']) > -1:
+        query = query.filter(User.status == int(req['status']))
 
     page_params = {
         'total': query.count(),
         'page_size': app.config['PAGE_SIZE'],
         'page': page,
         'display': app.config['PAGE_DISPLAY'],
-        'url': "/account/index"
+        'url': request.full_path.replace("&p={}".format(page), "")
     }
 
     pages = iPagination(page_params)
@@ -33,6 +41,8 @@ def index():
     list = query.order_by(User.uid.desc()).all()[offset: limit]
     resp_data['list'] = list
     resp_data['pages'] = pages
+    resp_data['search_con'] = req
+    resp_data['status_mapping'] = app.config['STATUS_MAPPING']
     return ops_render("account/index.html", resp_data)
 
 
@@ -40,6 +50,7 @@ def index():
 def info():
     resp_data = {}
     req = request.args
+    app.logger.info(req)
     uid = int(req.get('id', 0))
     callback_url = UrlManager.buildUrl("/account/index")
     if uid < 1:
@@ -49,6 +60,25 @@ def info():
     if not info:
         return redirect(callback_url)
 
+    page = int(req['p']) if ('p' in req and req['p']) else 1
+
+    access_query = AppAccessLog.query
+
+    page_params = {
+        'total': access_query.count(),
+        'page_size': app.config['PAGE_SIZE'],
+        'page': page,
+        'display': app.config['PAGE_DISPLAY'],
+        'url': request.full_path.replace("&p={}".format(page), "")
+    }
+
+    pages = iPagination(page_params)
+    offset = (page - 1) * app.config['PAGE_SIZE']
+    limit = app.config['PAGE_SIZE'] * page
+
+    access_log_list = AppAccessLog.query.order_by(AppAccessLog.uid.desc()).all()[offset: limit]
+    resp_data['list'] = access_log_list
+    resp_data['pages'] = pages
     resp_data['info'] = info
     return ops_render("account/info.html", resp_data)
 
@@ -125,4 +155,39 @@ def set():
 
     db.session.add(model_user)
     db.session.commit()
+    return jsonify(resp)
+
+
+@route_account.route("/ops", methods=['POST'])
+def ops():
+    resp = {'code': 200, 'msg': "success", 'data': {}}
+    req = request.values
+    id = req['id'] if 'id' in req else 0
+    act = req['act'] if 'id' in req else ""
+
+    if not id:
+        resp['code'] = -1
+        resp['msg'] = "请选择要操作的账号~~"
+        return jsonify(resp)
+
+    if act not in ['remove', 'recover']:
+        resp['code'] = -1
+        resp['msg'] = "操作有误，请重试~~"
+        return jsonify(resp)
+
+    user_info = User.query.filter_by(uid=id).first()
+    if not user_info:
+        resp['code'] = -1
+        resp['msg'] = "指定账号不存在~~"
+        return jsonify(resp)
+
+    if act == "remove":
+        user_info.status = 0
+    elif act == "recover":
+        user_info.status = 1
+
+    user_info.update_time = getCurrentDate()
+    db.session.add(user_info)
+    db.session.commit()
+
     return jsonify(resp)

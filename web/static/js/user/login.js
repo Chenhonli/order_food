@@ -34,7 +34,7 @@ var user_login_ops = {
                     if( res.code == 200 ){
                         callback = function(){
                             window.location.href = common_ops.buildUrl("/");
-                        }
+                        };
                     }
                     common_ops.alert( res.msg,callback );
                 }
