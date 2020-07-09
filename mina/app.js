@@ -5,8 +5,8 @@ App({
     globalData: {
         userInfo: null,
         version: "1.0",
-        shopName: "Python3 + Flask 订餐全栈系统",
-        domain:"http://192.168.0.119:8999/api"
+        shopName: "极速订餐系统",
+        domain:"http://127.0.0.1:8999/api"
     },
     tip:function( params ){
         var that = this;
@@ -56,5 +56,16 @@ App({
         return {
             'content-type': 'application/x-www-form-urlencoded'
         }
+    },
+    buildUrl:function(path, params){
+        var url = this.globalData.domain + path;
+        var _paramUrl = "";
+        if(  params ){
+            _paramUrl = Object.keys( params ).map( function( k ){
+                return [ encodeURIComponent( k ),encodeURIComponent( params[ k ] ) ].join("=");
+            }).join("&");
+            _paramUrl = "?" + _paramUrl;
+        }
+        return url + _paramUrl;
     }
 });
